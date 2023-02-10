@@ -1,43 +1,64 @@
 package com.visualnuts;
 
-import com.visualnuts.resource.PrintableIfDivisibleBy3Resource;
-import com.visualnuts.resource.PrintableIfDivisibleBy5Resource;
 import com.visualnuts.resource.PrintableResource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import java.io.PrintStream;
 import java.util.stream.IntStream;
+
+import static org.mockito.Mockito.*;
 
 public class NumberServiceTest {
 
-    private PrintableResource printableResourceChain;
-    private IntStream intStream = IntStream.rangeClosed(1, 100);
-    private IntStream intStream500 = IntStream.rangeClosed(1, 500);
 
-    NumberServiceTest() {
-        this.printableResourceChain = PrintableResource.link(
-                new PrintableIfDivisibleBy3Resource(),
-                new PrintableIfDivisibleBy5Resource());
+    private final PrintStream out = mock(PrintStream.class);
+
+    private final PrintableResource printableResource = mock(PrintableResource.class);
+
+    private final NumberService numberService = new NumberService(printableResource, out);
+
+
+
+    @Test
+    @DisplayName("Should print 1 times")
+    void printNumber1() {
+        when(printableResource.print(any(), anyInt())).thenReturn("1");
+
+        numberService.printNumber(IntStream.rangeClosed(1,1));
+
+        Mockito.verify(out, times(1)).println("1");
     }
 
     @Test
-    @DisplayName("Should do the default - print number from 1 to 100, " +
-            "when the number is divided by 3 print Visual, when divided by 5 print Nut, " +
-            "when divided by both print Visual Nuts")
-    void printNumber() {
-        new NumberService().printNumber(intStream);
+    @DisplayName("Sound print 100 times")
+    void printOut100Times() {
+        when(printableResource.print(any(), anyInt())).thenReturn("");
+
+        numberService.printNumber(IntStream.rangeClosed(1,100));
+
+        Mockito.verify(out, times(100)).println(any(String.class));
     }
 
     @Test
-    @DisplayName("Should print number from 1 to 500 - when receive a limit range parameter")
-    public void numberPrinterFrom1To500() {
-        new NumberService().printNumber(intStream500);
+    @DisplayName("Should print a mock value")
+    void printNumberPrintAMockedValue() {
+        when(printableResource.print(any(), anyInt())).thenReturn("Mock");
+
+        numberService.printNumber(IntStream.rangeClosed(1,1));
+
+        Mockito.verify(out, times(1)).println("Mock");
     }
 
     @Test
     @DisplayName("Given a null parameter to print, do nothing")
-    public void receiveNullInputStreamDoNothing() {
-        new NumberService().printNumber(null);
+    void receiveNullInputStreamDoNothing() {
+        when(printableResource.print(any(), anyInt())).thenReturn("");
+
+        numberService.printNumber(null);
+
+        Mockito.verify(out, times(0)).println(any(String.class));
     }
 
 }

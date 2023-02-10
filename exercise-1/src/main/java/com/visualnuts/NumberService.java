@@ -1,16 +1,20 @@
 package com.visualnuts;
 
-import com.visualnuts.resource.PrintableIfDivisibleBy3Resource;
-import com.visualnuts.resource.PrintableIfDivisibleBy5Resource;
 import com.visualnuts.resource.PrintableResource;
 
+import java.io.PrintStream;
 import java.util.stream.IntStream;
 
 public class NumberService {
 
-    private static final PrintableResource printableResourceChain = PrintableResource.link(
-            new PrintableIfDivisibleBy3Resource(), new PrintableIfDivisibleBy5Resource()
-    );
+    private PrintableResource printableResourceChain;
+
+    private final PrintStream out;
+
+    NumberService(PrintableResource printableResource, PrintStream out) {
+        this.printableResourceChain = printableResource;
+        this.out = out;
+    }
 
     public void printNumber(IntStream valuesToPrint) {
         if (valuesToPrint != null) {
@@ -24,7 +28,7 @@ public class NumberService {
 
                         return result;
                     })
-                    .forEach(System.out::println);
+                    .forEach(out::println);
         }
     }
 
